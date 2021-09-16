@@ -1,36 +1,32 @@
 ---@diagnostic disable: undefined-global
 
---Thanks Becca/Anonymouse for any help with this =P
+--Thanks Becca/Anonymouse/Fusspawn
 
 --Click on the map and move to the position
 
 local Tinkr = ...
 local Detour = Tinkr.Util.Detour
+local wp_index = 1
+local path = nil
 
+local main_frame = CreateFrame("Frame")
+main_frame:SetScript("OnUpdate", function() 
 
-local function FOR(index, target, callback, path)
-    if index > target then 
-      return
-    end 
-    callback(index,target, path)
-end
-  
-local function moving(index, target, path)
-    MoveTo(path[index].x, path[index].y, path[index].z)
-    FOR(index + 1, target, moving, path)
-end
-  
-local function tablelength(T)
-    local count = 0
-    for _ in pairs(T) do count = count + 1 end
-    return count
-end
+        if path ~= nil then
+            print(wp_index)
+            local px,py,pz = ObjectPosition("player")
+            if FastDistance(path[wp_index].x, path[wp_index].y, path[wp_index].z,px,py,pz) > 2.5 then
+                MoveTo(path[wp_index].x, path[wp_index].y, path[wp_index].z)
+            else
+                wp_index = wp_index + 1
+            end
+            if wp_index > #path then
+                wp_index = 1
+                path = nil
+            end
+        end
 
-local function travel(x1, y1, z1, x2, y2, z2) 
-    local path = Detour:Raw(x1, y1, z1, x2, y2, z2, GetMapID())
-    FOR(1,tablelength(path),moving,path)   
-end
-
+end)
 
 if WorldMapFrame ~= nil and not MapListenerRegistered then
     MapListenerRegistered = true
@@ -45,7 +41,7 @@ if WorldMapFrame ~= nil and not MapListenerRegistered then
             local hitFlags = bit.bor(0x1, 0x10, 0x100, 0x100000)
             local x1, y1, z1 = ObjectPosition("player")
             local x2, y2, z2 = TraceLine(wx, wy, -1000, wx, wy, 1000, hitFlags)
-            travel(x1,y1,z1,x2,y2,z2)
+            path = Detour:Raw(x1, y1, z1, x2, y2, z2, GetMapID())
         end
         
     end)
