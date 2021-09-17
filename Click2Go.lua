@@ -52,7 +52,7 @@ if WorldMapFrame ~= nil and not MapListenerRegistered then
 
     WorldMapFrame.ScrollContainer:HookScript(
         "OnMouseUp",function(self, button)
-        if button=='RightButton' then 
+        if button=="RightButton" then 
             path = nil
             wp_index = 1
         end
